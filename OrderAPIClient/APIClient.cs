@@ -61,7 +61,7 @@ namespace OrderAPIClient
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(url);
-                HttpResponseMessage response = client.PutAsJsonAsync("api/CustomerOrders/PutUpdateCustomerOrder", orders).Result;
+                HttpResponseMessage response = client.PutAsJsonAsync("api/CustomerOrders/PutCustomerOrder", orders).Result;
                 response.EnsureSuccessStatusCode();
                 bask = response.Content.ReadAsAsync<OrderItems>().Result;
             }
@@ -73,7 +73,7 @@ namespace OrderAPIClient
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(url);              
-                var response = client.GetAsync(string.Format("api/CustomerOrders/PostCustomerOrderItems?orderId={0}&itemName={1}&quantity={2}", orderId, itemName, quantity)).Result;
+                var response = client.GetAsync(string.Format("api/CustomerOrders/PostCustomerOrderItem?orderId={0}&itemName={1}&quantity={2}", orderId, itemName, quantity)).Result;
                 response.EnsureSuccessStatusCode();
                 basket = response.Content.ReadAsAsync<OrderItems>().Result;
             }
@@ -93,19 +93,6 @@ namespace OrderAPIClient
             return basket;
         }
 
-        public OrderItems RemoveProductItemsAsync(int orderId, string itemName, int quantity)
-        {
-            OrderItems basket = null;
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(url);                
-                var response = client.DeleteAsync(string.Format("api/CustomerOrders/DeleteCustomerOrderItems?orderId={0}&itemName={1}&quantity={2}", orderId, itemName, quantity)).Result;
-                response.EnsureSuccessStatusCode();
-                basket = response.Content.ReadAsAsync<OrderItems>().Result;
-            }
-            return basket;
-        }
-
         public OrderItems GetProductAsync(int orderId)
         {
             OrderItems bask = null;
@@ -113,8 +100,8 @@ namespace OrderAPIClient
             {
                 client.BaseAddress = new Uri(url);
                 client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));              
-                var response = client.GetAsync(string.Format("/api/GetCustomerOrder?orderId={0}", orderId)).Result;
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var response = client.GetAsync(string.Format("/api/GetOrder?orderId={0}", orderId)).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     response.EnsureSuccessStatusCode();
@@ -124,12 +111,26 @@ namespace OrderAPIClient
             }
             return bask;
         }
+
+        public OrderItems RemoveProductItemsAsync(int orderId, string itemName, int quantity)
+        {
+            OrderItems basket = null;
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(url);                
+                var response = client.DeleteAsync(string.Format("api/CustomerOrders/DeleteCustomerOrderItem?orderId={0}&itemName={1}&quantity={2}", orderId, itemName, quantity)).Result;
+                response.EnsureSuccessStatusCode();
+                basket = response.Content.ReadAsAsync<OrderItems>().Result;
+            }
+            return basket;
+        }
+  
         public HttpStatusCode DeleteCustomerOrdersList(int id)
         {
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri(url);
-                System.Net.Http.HttpResponseMessage response = client.DeleteAsync(string.Format("api/CustomerOrders/DeleteCustomerOrdersList/orderId={0}", id)).Result;
+                System.Net.Http.HttpResponseMessage response = client.DeleteAsync(string.Format("api/CustomerOrders/DeleteOrderItemsList/orderId={0}", id)).Result;
                 return response.StatusCode;
             }
         }
